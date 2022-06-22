@@ -38,12 +38,18 @@ button:hover {
 
 .input-area {
   background-color: #c1ffff;
-  width: 400px;
-  height: 30px;
+  width: 600px;
+  height: 50px;
   padding: 8px;
   margin: 0 auto;
   border-radius: 8px;
   text-align: center;
+  align-items: center;
+  display: flex;
+}
+
+.react-datepicker-wrapper {
+  width: 180px;
 }
 
 .list-row {

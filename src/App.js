@@ -1,5 +1,9 @@
 import { useState } from "react";
+import DatePicker, { registerLocale } from "react-datepicker";
+import ja from "date-fns/locale/ja";
+
 import "./reset.css";
+import "react-datepicker/dist/react-datepicker.css";
 import "./App.css";
 
 const App = () => {
@@ -12,6 +16,10 @@ const App = () => {
     { value: "inProgress", label: "作業中" },
     { value: "done", label: "完了" },
   ];
+
+  const today = new Date();
+  const [dueDate, setDueDate] = useState(today);
+  registerLocale("ja", ja);
 
   const handleInputChange = (e) => {
     setTodo(e.target.value);
@@ -26,6 +34,7 @@ const App = () => {
         {
           id: todos.length + 1,
           text: todo.trim(),
+          date: dueDate,
         },
       ]);
     }
@@ -36,12 +45,23 @@ const App = () => {
     <>
       <div className="header-title">TODOリスト</div>
       <form className="input-area">
+        <p>TODO：</p>
         <input
           name="todo"
           type="text"
           placeholder="TODOを入力"
           value={todo}
           onChange={handleInputChange}
+        />
+        <p>期限：</p>
+        <DatePicker
+          dateFormat="yyyy/MM/dd"
+          locale="ja"
+          selected={dueDate}
+          minDate={today}
+          onChange={(selectedDate) => {
+            setDueDate(selectedDate || today);
+          }}
         />
         <button onClick={handleFormSubmit}>追加</button>
       </form>
@@ -52,7 +72,12 @@ const App = () => {
               <li key={index}>
                 <div className="list-row">
                   <p>
-                    id:{todo.id} {todo.text}
+                    id：{todo.id} TODO：{todo.text} 期限：
+                    {todo.date?.getFullYear() +
+                      "/" +
+                      (todo.date?.getMonth() + 1) +
+                      "/" +
+                      todo.date?.getDate()}
                   </p>
                   <select>
                     {filterOptions.map(({ value, label }) => (
