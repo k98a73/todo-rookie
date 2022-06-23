@@ -30,6 +30,11 @@ button:hover {
   cursor: pointer;
 }
 
+.title {
+  text-align: center;
+  margin: 10px 0;
+}
+
 .header-title {
   text-align: center;
   font-size: 25px;
@@ -38,7 +43,7 @@ button:hover {
 
 .input-area {
   background-color: #c1ffff;
-  width: 600px;
+  width: 90%;
   height: 50px;
   padding: 8px;
   margin: 0 auto;
@@ -46,6 +51,7 @@ button:hover {
   text-align: center;
   align-items: center;
   display: flex;
+  word-spacing: 5px;
 }
 
 .react-datepicker-wrapper {

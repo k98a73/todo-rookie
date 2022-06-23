@@ -10,36 +10,50 @@ import "./App.css";
 const App = () => {
   const [todos, setTodos] = useState([]);
   const [todo, setTodo] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentTodo, setCurrentTodo] = useState({});
 
   const filterOptions = [
-    { value: "all", label: "すべて" },
-    { value: "notStarted", label: "未着手" },
-    { value: "inProgress", label: "作業中" },
-    { value: "done", label: "完了" },
+    { label: "notStarted", value: "未着手" },
+    { label: "inProgress", value: "作業中" },
+    { label: "done", value: "完了" },
   ];
+  const [todoStatus, setTodoStatus] = useState("未着手");
 
   const today = new Date();
   const [dueDate, setDueDate] = useState(today);
+
+  const editDay = currentTodo?.date;
+  const [editDueDate, setEditDueDate] = useState(editDay || today);
   registerLocale("ja", ja);
 
   const handleInputChange = (e) => {
     setTodo(e.target.value);
   };
 
+  const handleEditInputChange = (e) => {
+    setCurrentTodo({ ...currentTodo, text: e.target.value });
+  };
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
-
     if (todo !== "") {
       setTodos([
         ...todos,
         {
           id: todos.length + 1,
           text: todo.trim(),
+          status: todoStatus,
           date: dueDate,
         },
       ]);
     }
     setTodo("");
+  };
+
+  const handleEditFormSubmit = (e) => {
+    e.preventDefault();
+    handleUpdateTodo(currentTodo.id, currentTodo);
   };
 
   const handleDeleteClick = (id) => {
@@ -49,60 +63,124 @@ const App = () => {
     setTodos(removeItem);
   };
 
+  const handleUpdateTodo = (id, updatedTodo) => {
+    const updatedItem = todos.map((todo) => {
+      return todo.id === id ? updatedTodo : todo;
+    });
+    setIsEditing(false);
+    setTodos(updatedItem);
+  };
+
+  const handleEditClick = (todo) => {
+    setIsEditing(true);
+    setCurrentTodo({ ...todo });
+  };
+
+  console.log("todo", todos);
+  console.log("todos", todos);
+  console.log("currentTodo", currentTodo);
+
   return (
     <>
-      <div className="header-title">TODOリスト</div>
-      <form className="input-area">
-        <p>TODO：</p>
-        <input
-          name="todo"
-          type="text"
-          placeholder="TODOを入力"
-          value={todo}
-          onChange={handleInputChange}
-        />
-        <p>期限：</p>
-        <DatePicker
-          dateFormat="yyyy/MM/dd"
-          locale="ja"
-          selected={dueDate}
-          minDate={today}
-          onChange={(selectedDate) => {
-            setDueDate(selectedDate || today);
-          }}
-        />
-        <button onClick={handleFormSubmit}>追加</button>
-      </form>
-      <div className="todo-area">
-        <ul>
-          {todos.map((todo, index) => {
-            return (
-              <li key={index}>
-                <div className="list-row">
-                  <p>
-                    id：{todo.id} TODO：{todo.text} 期限：
-                    {todo.date?.getFullYear() +
-                      "/" +
-                      (todo.date?.getMonth() + 1) +
-                      "/" +
-                      todo.date?.getDate()}
-                  </p>
-                  <select>
-                    {filterOptions.map(({ value, label }) => (
-                      <option key={label} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                  <button onClick={() => handleDeleteClick(todo.id)}>
-                    削除
-                  </button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      <h1 className="title">TODOリスト</h1>
+      {isEditing ? (
+        <>
+          <div className="header-title">TODOの編集</div>
+          <form className="input-area" onSubmit={handleEditFormSubmit}>
+            <p>id: {currentTodo.id} TODO：</p>
+            <input
+              name="editTodo"
+              type="text"
+              placeholder="Edit todo"
+              value={currentTodo.text}
+              onChange={handleEditInputChange}
+            />
+            <p>期限：</p>
+            <DatePicker
+              dateFormat="yyyy/MM/dd"
+              locale="ja"
+              selected={currentTodo.date}
+              minDate={today}
+              onChange={(selectedDate) => {
+                setEditDueDate(selectedDate);
+              }}
+            />
+            <select onChange={(e) => setTodoStatus(e.target.value)}>
+              {filterOptions.map(({ value, label }) => (
+                <option
+                  key={label}
+                  value={value}
+                  selected={value === currentTodo.status}
+                >
+                  {value}
+                </option>
+              ))}
+            </select>
+            <button type="submit">更新</button>
+            <button onClick={() => setIsEditing(false)}>キャンセル</button>
+          </form>
+        </>
+      ) : (
+        <>
+          <div className="header-title">TODOの追加</div>
+          <form className="input-area" onSubmit={handleFormSubmit}>
+            <p>TODO：</p>
+            <input
+              name="todo"
+              type="text"
+              placeholder="TODOを入力"
+              value={todo}
+              onChange={handleInputChange}
+            />
+            <p>期限：</p>
+            <DatePicker
+              dateFormat="yyyy/MM/dd"
+              locale="ja"
+              selected={dueDate}
+              minDate={today}
+              onChange={(selectedDate) => {
+                setDueDate(selectedDate || today);
+              }}
+            />
+            <select onChange={(e) => setTodoStatus(e.target.value)}>
+              {filterOptions.map(({ value, label }) => (
+                <option key={label} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+            <button type="submit">追加</button>
+          </form>
+          <div className="todo-area">
+            <ul>
+              {todos.map((todo) => {
+                return (
+                  <li key={todo.id}>
+                    <div className="list-row">
+                      <p>
+                        id: {todo.id} TODO: {todo.text} 状況: {todo.status}
+                        {"  "}
+                        期限:
+                        {todo.date?.getFullYear() +
+                          "/" +
+                          (todo.date?.getMonth() + 1) +
+                          "/" +
+                          todo.date?.getDate()}
+                      </p>
+                      <button onClick={() => handleEditClick(todo)}>
+                        編集
+                      </button>
+                      <button onClick={() => handleDeleteClick(todo.id)}>
+                        削除
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </>
+      )}
     </>
   );
 };
