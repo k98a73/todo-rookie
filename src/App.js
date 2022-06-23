@@ -1,4 +1,5 @@
 import { useState } from "react";
+// react-datepickerを導入するならターミナルで「npm install react-datepicker --save」を実行
 import DatePicker, { registerLocale } from "react-datepicker";
 import ja from "date-fns/locale/ja";
 
@@ -39,6 +40,13 @@ const App = () => {
       ]);
     }
     setTodo("");
+  };
+
+  const handleDeleteClick = (id) => {
+    const removeItem = todos.filter((todo) => {
+      return todo.id !== id;
+    });
+    setTodos(removeItem);
   };
 
   return (
@@ -86,6 +94,9 @@ const App = () => {
                       </option>
                     ))}
                   </select>
+                  <button onClick={() => handleDeleteClick(todo.id)}>
+                    削除
+                  </button>
                 </div>
               </li>
             );
