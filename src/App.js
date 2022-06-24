@@ -13,8 +13,9 @@ const App = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentTodo, setCurrentTodo] = useState({});
   const [filteredTodos, setFilteredTodos] = useState([]);
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("全て");
   const [idFilter, setIdFilter] = useState("全て");
+  const [dateFilter, setDateFilter] = useState("全て");
 
   const filterOptions = [
     { label: "notStarted", value: "未着手" },
@@ -67,6 +68,9 @@ const App = () => {
     setTodo("");
     setDueDate(today);
     setTodoStatus("未着手");
+    setIdFilter("全て");
+    setDateFilter("全て");
+    setFilter("全て");
   };
 
   const handleDeleteClick = (id) => {
@@ -92,13 +96,13 @@ const App = () => {
   useEffect(() => {
     const filteringTodos = () => {
       switch (filter) {
-        case "notStarted":
+        case "未着手":
           setFilteredTodos(todos.filter((todo) => todo.status === "未着手"));
           break;
-        case "inProgress":
+        case "作業中":
           setFilteredTodos(todos.filter((todo) => todo.status === "作業中"));
           break;
-        case "done":
+        case "完了":
           setFilteredTodos(todos.filter((todo) => todo.status === "完了"));
           break;
         default:
@@ -132,6 +136,48 @@ const App = () => {
     filteringTodosId();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idFilter, todos]);
+
+  const todoDate = todos.map(
+    (todo) =>
+      todo.date?.getFullYear() +
+      "/" +
+      (todo.date?.getMonth() + 1) +
+      "/" +
+      todo.date?.getDate()
+  );
+  const todoDateFilter = ["全て", ...todoDate];
+
+  useEffect(() => {
+    const filteringTodosDate = () => {
+      let isBreak = false;
+      for (let date of todoDateFilter) {
+        switch (dateFilter) {
+          case "全て":
+            setFilteredTodos(todos);
+            break;
+          case date:
+            setFilteredTodos(
+              todos.filter(
+                (todo) =>
+                  todo.date?.getFullYear() +
+                    "/" +
+                    (todo.date?.getMonth() + 1) +
+                    "/" +
+                    todo.date?.getDate() ===
+                  date
+              )
+            );
+            isBreak = true;
+            break;
+          default:
+            setFilteredTodos(todos);
+        }
+        if (isBreak) break;
+      }
+    };
+    filteringTodosDate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateFilter, todos]);
 
   return (
     <>
@@ -214,12 +260,23 @@ const App = () => {
                 </option>
               ))}
             </select>
+            <p>期限: </p>
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+            >
+              {todoDateFilter.map((date, index) => (
+                <option key={index} value={date}>
+                  {date}
+                </option>
+              ))}
+            </select>
             <p>状況: </p>
             <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-              <option value="all">すべて</option>
-              <option value="notStarted">未着手</option>
-              <option value="inProgress">作業中</option>
-              <option value="done">完了</option>
+              <option value="全て">全て</option>
+              <option value="未着手">未着手</option>
+              <option value="作業中">作業中</option>
+              <option value="完了">完了</option>
             </select>
           </div>
           <div className="todo-area">
