@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // react-datepickerを導入するならターミナルで「npm install react-datepicker --save」を実行
 import DatePicker, { registerLocale } from "react-datepicker";
 import ja from "date-fns/locale/ja";
@@ -12,6 +12,9 @@ const App = () => {
   const [todo, setTodo] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [currentTodo, setCurrentTodo] = useState({});
+  const [filteredTodos, setFilteredTodos] = useState([]);
+  const [filter, setFilter] = useState("all");
+  const [idFilter, setIdFilter] = useState("全て");
 
   const filterOptions = [
     { label: "notStarted", value: "未着手" },
@@ -86,6 +89,50 @@ const App = () => {
     setCurrentTodo({ ...todo });
   };
 
+  useEffect(() => {
+    const filteringTodos = () => {
+      switch (filter) {
+        case "notStarted":
+          setFilteredTodos(todos.filter((todo) => todo.status === "未着手"));
+          break;
+        case "inProgress":
+          setFilteredTodos(todos.filter((todo) => todo.status === "作業中"));
+          break;
+        case "done":
+          setFilteredTodos(todos.filter((todo) => todo.status === "完了"));
+          break;
+        default:
+          setFilteredTodos(todos);
+      }
+    };
+    filteringTodos();
+  }, [filter, todos]);
+
+  const todoId = todos.map((todo) => todo.id);
+  const todoIdFilter = ["全て", ...todoId];
+
+  useEffect(() => {
+    const filteringTodosId = () => {
+      let isBreak = false;
+      for (let id of todoIdFilter) {
+        switch (idFilter) {
+          case "全て":
+            setFilteredTodos(todos);
+            break;
+          case id.toString():
+            setFilteredTodos(todos.filter((todo) => todo.id === id));
+            isBreak = true;
+            break;
+          default:
+            setFilteredTodos(todos);
+        }
+        if (isBreak) break;
+      }
+    };
+    filteringTodosId();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idFilter, todos]);
+
   return (
     <>
       <h1 className="title">TODOリスト</h1>
@@ -155,9 +202,29 @@ const App = () => {
             </select>
             <button type="submit">追加</button>
           </form>
+          <div className="filter-area">
+            <p>id: </p>
+            <select
+              value={idFilter}
+              onChange={(e) => setIdFilter(e.target.value)}
+            >
+              {todoIdFilter.map((id) => (
+                <option key={id} value={id}>
+                  {id}
+                </option>
+              ))}
+            </select>
+            <p>状況: </p>
+            <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+              <option value="all">すべて</option>
+              <option value="notStarted">未着手</option>
+              <option value="inProgress">作業中</option>
+              <option value="done">完了</option>
+            </select>
+          </div>
           <div className="todo-area">
             <ul>
-              {todos.map((todo) => {
+              {filteredTodos.map((todo) => {
                 return (
                   <li key={todo.id}>
                     <div className="list-row">
@@ -171,7 +238,7 @@ const App = () => {
                           "/" +
                           todo.date?.getDate()}
                       </p>
-                      <p> 状況: {todo.status}</p>
+                      <p>状況: {todo.status}</p>
                       <button onClick={() => handleEditClick(todo)}>
                         編集
                       </button>

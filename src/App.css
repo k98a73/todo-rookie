@@ -41,6 +41,21 @@ button:hover {
   margin: 10px 0;
 }
 
+.filter-area {
+  width: 90%;
+  background-color: #ffffe0;
+  padding: 10px;
+  margin: 20px auto;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.filter-area p {
+  margin-right: 10px;
+  margin-left: 20px;
+}
+
 .input-area {
   background-color: #c1ffff;
   width: 90%;
