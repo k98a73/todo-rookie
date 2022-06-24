@@ -22,9 +22,6 @@ const App = () => {
 
   const today = new Date();
   const [dueDate, setDueDate] = useState(today);
-
-  const editDay = currentTodo?.date;
-  const [editDueDate, setEditDueDate] = useState(editDay || today);
   registerLocale("ja", ja);
 
   const handleInputChange = (e) => {
@@ -33,6 +30,14 @@ const App = () => {
 
   const handleEditInputChange = (e) => {
     setCurrentTodo({ ...currentTodo, text: e.target.value });
+  };
+
+  const handleEditDatePickerChange = (selectedDate) => {
+    setCurrentTodo({ ...currentTodo, date: selectedDate });
+  };
+
+  const handleSelectChange = (e) => {
+    setCurrentTodo({ ...currentTodo, status: e.target.value });
   };
 
   const handleFormSubmit = (e) => {
@@ -49,11 +54,16 @@ const App = () => {
       ]);
     }
     setTodo("");
+    setDueDate(today);
+    setTodoStatus("未着手");
   };
 
   const handleEditFormSubmit = (e) => {
     e.preventDefault();
     handleUpdateTodo(currentTodo.id, currentTodo);
+    setTodo("");
+    setDueDate(today);
+    setTodoStatus("未着手");
   };
 
   const handleDeleteClick = (id) => {
@@ -76,10 +86,6 @@ const App = () => {
     setCurrentTodo({ ...todo });
   };
 
-  console.log("todo", todos);
-  console.log("todos", todos);
-  console.log("currentTodo", currentTodo);
-
   return (
     <>
       <h1 className="title">TODOリスト</h1>
@@ -101,11 +107,9 @@ const App = () => {
               locale="ja"
               selected={currentTodo.date}
               minDate={today}
-              onChange={(selectedDate) => {
-                setEditDueDate(selectedDate);
-              }}
+              onChange={handleEditDatePickerChange}
             />
-            <select onChange={(e) => setTodoStatus(e.target.value)}>
+            <select onChange={handleSelectChange}>
               {filterOptions.map(({ value, label }) => (
                 <option
                   key={label}
@@ -157,9 +161,9 @@ const App = () => {
                 return (
                   <li key={todo.id}>
                     <div className="list-row">
+                      <p>id: {todo.id}</p>
+                      <p>TODO: {todo.text}</p>
                       <p>
-                        id: {todo.id} TODO: {todo.text} 状況: {todo.status}
-                        {"  "}
                         期限:
                         {todo.date?.getFullYear() +
                           "/" +
@@ -167,6 +171,7 @@ const App = () => {
                           "/" +
                           todo.date?.getDate()}
                       </p>
+                      <p> 状況: {todo.status}</p>
                       <button onClick={() => handleEditClick(todo)}>
                         編集
                       </button>

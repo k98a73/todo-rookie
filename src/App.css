@@ -66,11 +66,10 @@ button:hover {
   border-radius: 8px;
   display: flex;
   justify-content: center;
-  word-spacing: 5px;
   position: relative;
   align-items: center;
 }
 
 .list-row p {
-  margin-right: 10px;
+  margin-right: 20px;
 }
