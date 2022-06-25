@@ -50,7 +50,7 @@ const App = () => {
       setTodos([
         ...todos,
         {
-          id: todos.length + 1,
+          id: todos.length === 0 ? 1 : todos[todos.length - 1].id + 1,
           text: todo.trim(),
           status: todoStatus,
           date: dueDate,
